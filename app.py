@@ -113,10 +113,30 @@ def get_average_generation(source_column, source_name):
     return (
         f"Tool Selected: {source_name} Analysis Tool\n\n"
         f"{source_name} Generation Analysis:\n"
-        f"- Average: {round(avg,2)} MW\n"
-        f"- Maximum: {round(max_value,2)} MW\n"
-        f"- Minimum: {round(min_value,2)} MW"
+        f"- Average: {round(avg, 2)} MW\n"
+        f"- Maximum: {round(max_value, 2)} MW\n"
+        f"- Minimum: {round(min_value, 2)} MW"
     )
+
+
+def get_max_min_date(source_column, source_name, query):
+    if "max" in query or "maximum" in query or "highest" in query or "peak" in query:
+        row = df.loc[df[source_column].idxmax()]
+        return (
+            f"Tool Selected: {source_name} Maximum Date Tool\n\n"
+            f"The maximum {source_name.lower()} generation occurred on {row['Date'].date()}.\n"
+            f"Generation Value: {round(row[source_column], 2)} MW"
+        )
+
+    if "min" in query or "minimum" in query or "lowest" in query:
+        row = df.loc[df[source_column].idxmin()]
+        return (
+            f"Tool Selected: {source_name} Minimum Date Tool\n\n"
+            f"The minimum {source_name.lower()} generation occurred on {row['Date'].date()}.\n"
+            f"Generation Value: {round(row[source_column], 2)} MW"
+        )
+
+    return None
 
 
 def compare_sources(source1_col, source1_name, source2_col, source2_name):
@@ -132,8 +152,8 @@ def compare_sources(source1_col, source1_name, source2_col, source2_name):
 
     return (
         "Tool Selected: Comparative Analysis Tool\n\n"
-        f"- {source1_name} Average: {round(avg1,2)} MW\n"
-        f"- {source2_name} Average: {round(avg2,2)} MW\n"
+        f"- {source1_name} Average: {round(avg1, 2)} MW\n"
+        f"- {source2_name} Average: {round(avg2, 2)} MW\n"
         f"- Conclusion: {conclusion}"
     )
 
@@ -147,14 +167,26 @@ def smart_grid_agent(user_query):
     renewable_keywords = ["renewable", "renewable share", "clean energy"]
     compare_keywords = ["compare", "versus", "vs", "higher", "more"]
 
+    energy_sources = {
+        "solar": ("Solar_MW", "Solar"),
+        "wind": ("Wind_MW", "Wind"),
+        "hydro": ("Hydro_MW", "Hydro"),
+        "coal": ("Coal_MW", "Coal"),
+        "gas": ("Gas_MW", "Gas"),
+        "nuclear": ("Nuclear_MW", "Nuclear"),
+        "total": ("Total_Generation_MW", "Total Energy")
+    }
+
+    # Forecasting tool
     if contains_any(query, forecast_keywords):
         pred = lr_model.predict(X_test.iloc[-1:])[0]
         return (
             "Tool Selected: ML Forecasting Tool\n\n"
-            f"Predicted next total energy generation: {round(pred,2)} MW\n\n"
+            f"Predicted next total energy generation: {round(pred, 2)} MW\n\n"
             "Model Used: Linear Regression"
         )
 
+    # Anomaly detection tool
     elif contains_any(query, anomaly_keywords):
         anomaly_count = len(df[df["Anomaly_Label"] == "Anomaly"])
         return (
@@ -163,7 +195,15 @@ def smart_grid_agent(user_query):
             "Model Used: Isolation Forest"
         )
 
-    elif contains_any(query, compare_keywords):
+    # Maximum / minimum date questions
+    for source_key, (column_name, display_name) in energy_sources.items():
+        if source_key in query:
+            max_min_response = get_max_min_date(column_name, display_name, query)
+            if max_min_response is not None:
+                return max_min_response
+
+    # Comparison tool
+    if contains_any(query, compare_keywords):
         if "solar" in query and "wind" in query:
             return compare_sources("Solar_MW", "Solar", "Wind_MW", "Wind")
         elif "coal" in query and "gas" in query:
@@ -185,9 +225,10 @@ def smart_grid_agent(user_query):
             return (
                 "Tool Selected: Comparative Analysis Tool\n\n"
                 f"The highest average generation source is {highest_source} "
-                f"with {round(source_means[highest_source],2)} MW."
+                f"with {round(source_means[highest_source], 2)} MW."
             )
 
+    # Renewable share
     elif contains_any(query, renewable_keywords):
         avg = df["Renewable_Share_%"].mean()
         max_value = df["Renewable_Share_%"].max()
@@ -195,52 +236,12 @@ def smart_grid_agent(user_query):
 
         return (
             "Tool Selected: Renewable Energy Analysis Tool\n\n"
-            f"- Average Renewable Share: {round(avg,2)}%\n"
-            f"- Maximum Renewable Share: {round(max_value,2)}%\n"
-            f"- Minimum Renewable Share: {round(min_value,2)}%"
+            f"- Average Renewable Share: {round(avg, 2)}%\n"
+            f"- Maximum Renewable Share: {round(max_value, 2)}%\n"
+            f"- Minimum Renewable Share: {round(min_value, 2)}%"
         )
 
-        # =========================
-    # MAXIMUM / MINIMUM DATE QUERIES
-    # =========================
-
-    energy_sources = {
-        "solar": "Solar_MW",
-        "wind": "Wind_MW",
-        "hydro": "Hydro_MW",
-        "coal": "Coal_MW",
-        "gas": "Gas_MW",
-        "nuclear": "Nuclear_MW",
-        "total": "Total_Generation_MW"
-    }
-
-    for source_name, column_name in energy_sources.items():
-
-        if source_name in query:
-
-            # Maximum generation
-            if ("max" in query or "maximum" in query or "highest" in query):
-
-                row = df.loc[df[column_name].idxmax()]
-
-                return (
-                    f"Tool Selected: {source_name.capitalize()} Maximum Analysis Tool\n\n"
-                    f"The maximum {source_name} generation occurred on "
-                    f"{row['Date'].date()}.\n"
-                    f"Generation Value: {round(row[column_name],2)} MW"
-                )
-
-            # Minimum generation
-            elif ("min" in query or "minimum" in query or "lowest" in query):
-
-                row = df.loc[df[column_name].idxmin()]
-
-                return (
-                    f"Tool Selected: {source_name.capitalize()} Minimum Analysis Tool\n\n"
-                    f"The minimum {source_name} generation occurred on "
-                    f"{row['Date'].date()}.\n"
-                    f"Generation Value: {round(row[column_name],2)} MW"
-                )
+    # Source-specific analysis tools
     elif "solar" in query:
         return get_average_generation("Solar_MW", "Solar")
 
@@ -262,6 +263,7 @@ def smart_grid_agent(user_query):
     elif "total" in query or "generation" in query:
         return get_average_generation("Total_Generation_MW", "Total Energy")
 
+    # Trend tool
     elif contains_any(query, trend_keywords):
         return (
             "Tool Selected: Trend Analysis Tool\n\n"
@@ -274,7 +276,7 @@ def smart_grid_agent(user_query):
         return (
             "I can answer smart-grid questions about solar, wind, hydro, coal, gas, "
             "nuclear, total generation, renewable share, forecasting, anomalies, trends, "
-            "and comparisons."
+            "maximum/minimum generation dates, and comparisons."
         )
 
 # =========================
@@ -285,7 +287,7 @@ st.subheader("Ask the Smart Grid Agent")
 
 user_question = st.text_input(
     "Enter your question:",
-    placeholder="Example: Predict next energy generation"
+    placeholder="Example: What is the date of maximum wind generation?"
 )
 
 if st.button("Ask Agent"):
@@ -304,6 +306,17 @@ st.subheader("Example Questions")
 
 sample_questions = [
     "Predict next energy generation",
+    "What is the date of maximum solar generation?",
+    "What is the date of maximum wind generation?",
+    "When was hydro generation lowest?",
+    "Show coal generation",
+    "Analyze gas power",
+    "Show nuclear generation",
+    "What is the renewable share?",
+    "Detect abnormal energy generation",
+    "Compare solar and wind",
+    "Which source generates more energy?",
+    "Explain energy trend"
 ]
 
 st.write(sample_questions)
