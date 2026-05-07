@@ -199,48 +199,48 @@ def smart_grid_agent(user_query):
             f"- Maximum Renewable Share: {round(max_value,2)}%\n"
             f"- Minimum Renewable Share: {round(min_value,2)}%"
         )
-# =========================
-# MAXIMUM / MINIMUM DATE QUERIES
-# =========================
 
-energy_sources = {
-    "solar": "Solar_MW",
-    "wind": "Wind_MW",
-    "hydro": "Hydro_MW",
-    "coal": "Coal_MW",
-    "gas": "Gas_MW",
-    "nuclear": "Nuclear_MW",
-    "total": "Total_Generation_MW"
-}
+        # =========================
+    # MAXIMUM / MINIMUM DATE QUERIES
+    # =========================
 
-for source_name, column_name in energy_sources.items():
+    energy_sources = {
+        "solar": "Solar_MW",
+        "wind": "Wind_MW",
+        "hydro": "Hydro_MW",
+        "coal": "Coal_MW",
+        "gas": "Gas_MW",
+        "nuclear": "Nuclear_MW",
+        "total": "Total_Generation_MW"
+    }
 
-    if source_name in query:
+    for source_name, column_name in energy_sources.items():
 
-        # Maximum generation
-        if ("max" in query or "maximum" in query or "highest" in query):
+        if source_name in query:
 
-            row = df.loc[df[column_name].idxmax()]
+            # Maximum generation
+            if ("max" in query or "maximum" in query or "highest" in query):
 
-            return (
-                f"Tool Selected: {source_name.capitalize()} Maximum Analysis Tool\n\n"
-                f"The maximum {source_name} generation occurred on "
-                f"{row['Date'].date()}.\n"
-                f"Generation Value: {round(row[column_name],2)} MW"
-            )
+                row = df.loc[df[column_name].idxmax()]
 
-        # Minimum generation
-        elif ("min" in query or "minimum" in query or "lowest" in query):
+                return (
+                    f"Tool Selected: {source_name.capitalize()} Maximum Analysis Tool\n\n"
+                    f"The maximum {source_name} generation occurred on "
+                    f"{row['Date'].date()}.\n"
+                    f"Generation Value: {round(row[column_name],2)} MW"
+                )
 
-            row = df.loc[df[column_name].idxmin()]
+            # Minimum generation
+            elif ("min" in query or "minimum" in query or "lowest" in query):
 
-            return (
-                f"Tool Selected: {source_name.capitalize()} Minimum Analysis Tool\n\n"
-                f"The minimum {source_name} generation occurred on "
-                f"{row['Date'].date()}.\n"
-                f"Generation Value: {round(row[column_name],2)} MW"
-            )
-    
+                row = df.loc[df[column_name].idxmin()]
+
+                return (
+                    f"Tool Selected: {source_name.capitalize()} Minimum Analysis Tool\n\n"
+                    f"The minimum {source_name} generation occurred on "
+                    f"{row['Date'].date()}.\n"
+                    f"Generation Value: {round(row[column_name],2)} MW"
+                )
     elif "solar" in query:
         return get_average_generation("Solar_MW", "Solar")
 
