@@ -17,7 +17,7 @@ st.set_page_config(
 )
 
 st.title("⚡ Smart Grid Agentic AI System")
-st.write("Ask questions about energy generation, forecasting, anomalies, and renewable energy.")
+st.write("Ask questions about energy generation, forecasting, anomalies, and renewable energy./nFrom 01/o1/2022 to 12/31/2024")
 
 # =========================
 # LOAD DATA
