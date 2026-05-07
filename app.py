@@ -305,18 +305,7 @@ if st.button("Ask Agent"):
 st.subheader("Example Questions")
 
 sample_questions = [
-    "Predict next energy generation",
-    "What is the date of maximum solar generation?",
-    "What is the date of maximum wind generation?",
-    "When was hydro generation lowest?",
-    "Show coal generation",
-    "Analyze gas power",
-    "Show nuclear generation",
-    "What is the renewable share?",
-    "Detect abnormal energy generation",
-    "Compare solar and wind",
-    "Which source generates more energy?",
-    "Explain energy trend"
+    "Predict next energy generation"
 ]
 
 st.write(sample_questions)
