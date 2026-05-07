@@ -23,7 +23,7 @@ st.write("Ask questions about energy generation, forecasting, anomalies, and ren
 # LOAD DATA
 # =========================
 
-file_path = "data/Smart_Grid_EIA930_3Years_Modified_Venkatesh_Kota.xlsx"
+file_path = "Smart_Grid_EIA930_3Years_Modified_Venkatesh_Kota.xlsx"
 
 df = pd.read_excel(file_path)
 df.columns = df.columns.str.strip()
