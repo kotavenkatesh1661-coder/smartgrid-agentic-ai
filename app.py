@@ -199,7 +199,48 @@ def smart_grid_agent(user_query):
             f"- Maximum Renewable Share: {round(max_value,2)}%\n"
             f"- Minimum Renewable Share: {round(min_value,2)}%"
         )
+# =========================
+# MAXIMUM / MINIMUM DATE QUERIES
+# =========================
 
+energy_sources = {
+    "solar": "Solar_MW",
+    "wind": "Wind_MW",
+    "hydro": "Hydro_MW",
+    "coal": "Coal_MW",
+    "gas": "Gas_MW",
+    "nuclear": "Nuclear_MW",
+    "total": "Total_Generation_MW"
+}
+
+for source_name, column_name in energy_sources.items():
+
+    if source_name in query:
+
+        # Maximum generation
+        if ("max" in query or "maximum" in query or "highest" in query):
+
+            row = df.loc[df[column_name].idxmax()]
+
+            return (
+                f"Tool Selected: {source_name.capitalize()} Maximum Analysis Tool\n\n"
+                f"The maximum {source_name} generation occurred on "
+                f"{row['Date'].date()}.\n"
+                f"Generation Value: {round(row[column_name],2)} MW"
+            )
+
+        # Minimum generation
+        elif ("min" in query or "minimum" in query or "lowest" in query):
+
+            row = df.loc[df[column_name].idxmin()]
+
+            return (
+                f"Tool Selected: {source_name.capitalize()} Minimum Analysis Tool\n\n"
+                f"The minimum {source_name} generation occurred on "
+                f"{row['Date'].date()}.\n"
+                f"Generation Value: {round(row[column_name],2)} MW"
+            )
+    
     elif "solar" in query:
         return get_average_generation("Solar_MW", "Solar")
 
@@ -263,17 +304,6 @@ st.subheader("Example Questions")
 
 sample_questions = [
     "Predict next energy generation",
-    "Show solar generation",
-    "Analyze wind energy",
-    "What is the average hydro generation?",
-    "Show coal generation",
-    "Analyze gas power",
-    "Show nuclear generation",
-    "What is the renewable share?",
-    "Detect abnormal energy generation",
-    "Compare solar and wind",
-    "Which source generates more energy?",
-    "Explain energy trend"
 ]
 
 st.write(sample_questions)
@@ -282,11 +312,11 @@ st.write(sample_questions)
 # OPTIONAL DISPLAY SECTIONS
 # =========================
 
-st.subheader("Model Evaluation Results")
-st.dataframe(results)
+#st.subheader("Model Evaluation Results")
+#st.dataframe(results)
 
-st.subheader("Dataset Preview")
-st.dataframe(df.head())
+#st.subheader("Dataset Preview")
+#st.dataframe(df.head())
 
-st.subheader("Total Energy Generation Over Time")
-st.line_chart(df.set_index("Date")["Total_Generation_MW"])
+#st.subheader("Total Energy Generation Over Time")
+#st.line_chart(df.set_index("Date")["Total_Generation_MW"])
