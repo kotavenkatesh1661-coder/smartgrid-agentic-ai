@@ -341,11 +341,3 @@ st.write(sample_questions)
 # DISPLAY RESULTS
 # =========================
 
-"""st.subheader("Model Evaluation Results")
-st.dataframe(results)
-
-st.subheader("Dataset Preview")
-st.dataframe(df.head())
-
-st.subheader("Total Energy Generation Over Time")
-st.line_chart(df.set_index("Date")["Total_Generation_MW"])"""
